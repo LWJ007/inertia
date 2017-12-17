@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        div{
+            background-color: red;
+            width: 100px;
+            height:100px;
+            position: absolute;
+        }
+    </style>
+</head>
+<body>
+
+<div></div>
+
+
+<script id="commonjs" src="../commom.js"></script>
+<script>
+
+
+    /*
+    * 思路：
+    *
+    * 1.找到拖拽的元素
+    *
+    * 2.在mousedown的时候让元素跟着鼠标走（mousemove）
+    *      已知条件：
+    *           鼠标点下的位置： x1,y1
+    *           鼠标移动过程中： x2,y2
+    *
+    *           元素的起始位置：ele.offsetLeft(l),ele.offsetTop(t);
+    *
+    *           计算出： x，y  （div要移动的距离）
+    *
+    *
+    *           得到元素移动过程中的位置：
+    *
+    *           ele.style.left = l+x+'px';
+    *           ele.style.top = t+y+'px';
+    *
+    *
+    *
+    * 3.鼠标抬起的时候（mouseup）注销move事件
+    *
+    *
+    * 产生惯性条件：
+    *   惯性运动的初始速度 （s1,s2  t=up:t2 - down:t1）
+    *
+    *
+    *
+    *
+    *
+    *
+    * */
+
+
+    var div = document.querySelector('div');
+
+
+    //给拖拽的元素添加mousedown事件
+    div.onmousedown = function(ev){
+
+        var ev = ev || event;
+
+        //鼠标当前点：
+        var x1 = ev.clientX;
+        var y1 = ev.clientY;
+
+        //元素当前的位置：
+        var l = div.offsetLeft;
+        var t = div.offsetTop;
+
+        var x,y,t1 = new Date().getTime();
+
+        document.onmousemove = function(ev){
+
+            var ev = ev || event;
+
+            //移动过程中的鼠标位置
+            var x2 = ev.clientX;
+            var y2 = ev.clientY;
+
+
+            //计算div要移动的距离
+            x = x2-x1;
+            y = y2-y1;
+
+
+            //设置div的属性
+            div.style.left = l+x+'px';
+            div.style.top = t+y+'px';
+
+
+
+        };
+
+        document.onmouseup = function(){
+            //鼠标抬起取消事件；
+            document.onmousemove = null;
+
+            //结束事件：
+            var t2 = new Date().getTime();
+
+            //计算运行的时间
+            var t = t2-t1;
+
+            if(t>300){
+                return;
+            }
+
+            //计算x和y的速度
+            var v1 = x/t;
+            var v2 = y/t;
+
+            //惯性运动的时间：
+            var time = 100;
+
+            //元素的目标点：
+            var targetX = div.offsetLeft+v1*time;
+            var targetY = div.offsetTop+v2*time;
+
+            MTween({
+                obj:div,
+                attrs:{
+                    left:targetX+'px',
+                    top:targetY+'px'
+                },
+                duration:time,
+                way:'easeOutStrong'
+            });
+
+        };
+
+
+
+    };
+
+</script>
+</body>
+</html>
